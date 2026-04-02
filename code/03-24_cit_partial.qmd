@@ -314,6 +314,8 @@ cit_grid_result <- tune_sim_anneal(
   
 )
 
+cit_grid_result$.metrics[[2]]
+
 ```
 Notice how we have a column for iterations.  
 The first iteration uses a sensible value for the hyper-parameters, and then starts "walking" the parameter space in the direction of greatest improvement.  
@@ -362,7 +364,10 @@ cit_grid_result %>%
 
 ```{r}
 # Based on lowest RMSE
-best_rmse <- cit_grid_result 
+best_rmse <- cit_grid_result %>%
+  select_by_one_std_err("tree_depth",
+                        metric = "rmse"
+                        )
 
 best_rmse
 
@@ -370,7 +375,9 @@ best_rmse
 
 ```{r}
 # Based on greatest R2
-best_r2 <- cit_grid_result 
+best_r2 <- cit_grid_result %>%
+  select_by_one_std_err("tree_depth",
+                        metric = "rsq")
 
 best_r2
 
@@ -484,7 +491,11 @@ final_spec %>%
 Tree:  
 
 ```{r}
-
+final_spec%>%
+  fit(strength_gtex ~ .,
+      data = bake(weather_prep, weather)) %>%
+.$fit %>%
+  plot()
   
 ```
 
